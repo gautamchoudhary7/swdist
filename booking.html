@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Tiffin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0fff4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      width: 320px;
+    }
+    h2 { color: #2196f3; text-align: center; }
+    label { display: block; margin-top: 10px; }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .book-btn {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2196f3;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 3px;
+      display: none;
+    }
+    .success {
+      color: green;
+      font-size: 13px;
+      margin-top: 3px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Book Your Tiffin</h2>
+    <form id="tiffinForm" action="/book-tiffin" method="post">
+      <!-- ✅ Name -->
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="fullname" placeholder="Enter your name" required>
+      <div id="nameError" class="error">❌ Name must contain only letters and spaces.</div>
+
+      <!-- ✅ Phone -->
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter 10-digit phone number" required>
+      <div id="phoneError" class="error">❌ Enter a valid 10-digit mobile number (cannot start with 0).</div>
+      <div id="phoneSuccess" class="success">✅ Mobile number is valid!</div>
+
+      <!-- ✅ Address -->
+      <label for="address">Address</label>
+      <textarea id="address" name="address" rows="3" required></textarea>
+
+      <!-- ✅ Tiffin -->
+      <label for="tiffin">Tiffin Center</label>
+      <select id="tiffin" name="tiffin" required>
+        <option value="">-- Select Center --</option>
+        <option>Delicious Tiffin Center</option>
+        <option>The Daily Dabba</option>
+        <option>Maa Ki Rasoi Express</option>
+        <option>Gharguti Jevan</option>
+        <option>NutriBox</option>
+        <option>Healthy Tiffin Hub</option>
+      </select>
+
+      <button type="submit" class="book-btn">Confirm Booking</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("tiffinForm");
+    const nameInput = document.getElementById("name");
+    const phoneInput = document.getElementById("phone");
+
+    const nameError = document.getElementById("nameError");
+    const phoneError = document.getElementById("phoneError");
+    const phoneSuccess = document.getElementById("phoneSuccess");
+
+    // ✅ Name validation
+    nameInput.addEventListener("input", () => {
+      if (/[^a-zA-Z\s]/.test(nameInput.value)) {
+        nameError.style.display = "block";
+        nameInput.value = nameInput.value.replace(/[^a-zA-Z\s]/g, "");
+      } else {
+        nameError.style.display = "none";
+      }
+    });
+
+    // ✅ Phone validation
+    phoneInput.addEventListener("input", () => {
+      let value = phoneInput.value;
+
+      // remove non-digits
+      value = value.replace(/[^0-9]/g, "");
+
+      // block leading zero
+      if (value.startsWith("0")) {
+        value = value.replace(/^0+/, "");
+      }
+
+      phoneInput.value = value;
+
+      // validation messages
+      if (value.length === 10) {
+        phoneError.style.display = "none";
+        phoneSuccess.style.display = "block";
+      } else if (value.length > 0) {
+        phoneError.style.display = "block";
+        phoneSuccess.style.display = "none";
+      } else {
+        phoneError.style.display = "none";
+        phoneSuccess.style.display = "none";
+      }
+    });
+
+    // ✅ Prevent form submission if invalid
+    form.addEventListener("submit", (e) => {
+      if (nameInput.value.trim() === "" || /[^a-zA-Z\s]/.test(nameInput.value)) {
+        nameError.style.display = "block";
+        e.preventDefault();
+      }
+      if (phoneInput.value.length !== 10) {
+        phoneError.style.display = "block";
+        phoneSuccess.style.display = "none";
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
