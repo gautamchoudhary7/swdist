@@ -5,26 +5,25 @@ const mongoose = require("mongoose");
 const path = require("path");
 
 const app = express();
-const port = 3025;
+const port = process.env.PORT || 3025;
 
 // Middleware
 app.use(express.static(__dirname)); // serve static files
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // parse JSON body
 
-// MongoDB connection
-mongoose.connect("mongodb://127.0.0.1:27017/tiffinBookingApp");
-const db = mongoose.connection;
-db.once("open", () => {
-  console.log("✅ Connected to MongoDB");
-});
+// MongoDB Atlas Connection
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 // Schema & Model
 const bookingSchema = new mongoose.Schema({
-  fullname:String,
-    phone:String,
-    address:String,
-    tiffin:String,
+  fullname: String,
+  phone: String,
+  address: String,
+  tiffin: String,
   date: { type: Date, default: Date.now },
 });
 
@@ -37,13 +36,13 @@ const Booking = mongoose.model("Booking", bookingSchema);
 // CREATE: Book a tiffin
 app.post("/book-tiffin", async (req, res) => {
   try {
-    const { fullname, phone, address,tiffin } = req.body;
-    const newBooking = new Booking({ fullname, phone, address,tiffin });
+    const { fullname, phone, address, tiffin } = req.body;
+    const newBooking = new Booking({ fullname, phone, address, tiffin });
     await newBooking.save();
     res.status(201).json({ message: "Booking successful ✅", booking: newBooking });
   } catch (err) {
     res.status(500).json({ error: "Error saving booking" });
-  }cc
+  }
 });
 
 // READ: Get all bookings
@@ -64,7 +63,7 @@ app.put("/bookings/:id", async (req, res) => {
       req.body,
       { new: true }
     );
-    res.json({ message: "Booking updated ", booking: updatedBooking });
+    res.json({ message: "Booking updated", booking: updatedBooking });
   } catch (err) {
     res.status(500).json({ error: "Error updating booking" });
   }
@@ -74,7 +73,7 @@ app.put("/bookings/:id", async (req, res) => {
 app.delete("/bookings/:id", async (req, res) => {
   try {
     await Booking.findByIdAndDelete(req.params.id);
-    res.json({ message: "Booking deleted " });
+    res.json({ message: "Booking deleted" });
   } catch (err) {
     res.status(500).json({ error: "Error deleting booking" });
   }
@@ -82,5 +81,11 @@ app.delete("/bookings/:id", async (req, res) => {
 
 // Start server
 app.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
+});
+
+// Start server
+app.listen(port, () => {
   console.log(` Server running at http://localhost:${port}`);
 });
+
